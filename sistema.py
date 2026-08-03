@@ -27,3 +27,13 @@ class Cliente(Usuario):
     def menu(self):
         print("Menu cliente")
     #def comprar_entrada(self):
+    
+
+class Funcion:
+    def __init__(self, pelicula, sala, fecha, hora, precio, capacidad):
+        self.pelicula = pelicula
+        self.sala = sala
+        self.fecha = fecha
+        self.hora = hora
+        self.precio = precio
+        self.capacidad = capacidad
