@@ -5,6 +5,7 @@ class Usuario:
     def __init__(self, usuario, contraseña):
         self.usuario = usuario
         self.contraseña = contraseña
+        self.tipo = "usuarion"
     def menu(self):
         pass
     
@@ -12,6 +13,7 @@ class Usuario:
 class Administrador(Usuario):
     def __init__(self, usuario, contraseña):
         super().__init__(usuario, contraseña)
+        self.tipo = "admin"
         # agregar atributos específicos para el administrador o nah? supomgo que si igual :(
     def menu(self):
         print("Menu administrador")        
@@ -23,6 +25,7 @@ class Administrador(Usuario):
 class Cliente(Usuario):
     def __init__(self, usuario, contraseña):
         super().__init__(usuario, contraseña)
+        self.tipo = "cliente"
         # nu se, agregar mas atributos especificos del cliente?
     def menu(self):
         print("Menu cliente")
