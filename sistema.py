@@ -2,17 +2,20 @@
 # super largo y complicado el codigo principal 
 
 class Usuario:
-    def __init__(self, usuario, contraseña):
+    def __init__(self, usuario, contraseña, nombre, apellido, dni):
         self.usuario = usuario
         self.contraseña = contraseña
+        self.nombre = nombre
+        self.apellido = apellido
+        self.dni = dni
         self.tipo = "usuario"
     def menu(self):
         pass
     
 
 class Administrador(Usuario):
-    def __init__(self, usuario, contraseña):
-        super().__init__(usuario, contraseña)
+    def __init__(self, usuario, contraseña, nombre, apellido, dni):
+        super().__init__(usuario, contraseña, nombre, apellido, dni)
         self.tipo = "admin"
         # agregar atributos específicos para el administrador o nah? supomgo que si igual :(
     def menu(self):
@@ -23,8 +26,8 @@ class Administrador(Usuario):
 
 
 class Cliente(Usuario):
-    def __init__(self, usuario, contraseña):
-        super().__init__(usuario, contraseña)
+    def __init__(self, usuario, contraseña, nombre, apellido, dni):
+        super().__init__(usuario, contraseña, nombre, apellido, dni)
         self.tipo = "cliente"
         # nu se, agregar mas atributos especificos del cliente?
     def menu(self):
