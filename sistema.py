@@ -5,7 +5,7 @@ class Usuario:
     def __init__(self, usuario, contraseña):
         self.usuario = usuario
         self.contraseña = contraseña
-        self.tipo = "usuarion"
+        self.tipo = "usuario"
     def menu(self):
         pass
     
@@ -40,3 +40,33 @@ class Funcion:
         self.hora = hora
         self.precio = precio
         self.capacidad = capacidad
+    
+    def hay_lugares(self):
+        return self.capacidad > 0
+    
+    def vender_entrada(self):
+        if self.capacidad > 0:
+            self.capacidad -= 1
+            return True
+        return False
+    
+    def to_dict(self):  #Este va a ser el metodo que cuando se cree un obj, lo va a convertir en un diccionario para json
+        return {
+            "pelicula": self.pelicula,
+            "sala": self.sala,
+            "fecha": self.fecha,
+            "hora": self.hora,
+            "precio": self.precio,
+            "capacidad": self.capacidad
+        }
+    
+    def mostrar(self):
+
+        print(f"""
+            Película: {self.pelicula}
+            Sala: {self.sala}
+            Fecha: {self.fecha}
+            Hora: {self.hora}
+            Precio: ${self.precio}
+            Lugares: {self.capacidad}
+            """)
