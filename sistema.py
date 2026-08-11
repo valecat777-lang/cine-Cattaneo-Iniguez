@@ -9,31 +9,38 @@ class Usuario:
         self.apellido = apellido
         self.dni = dni
         self.tipo = "usuario"
+
     def menu(self):
         pass
+
+    def to_dict(self):
+        return {
+            "usuario": self.usuario,
+            "contraseña": self.contraseña,
+            "nombre": self.nombre,
+            "apellido": self.apellido,
+            "dni": self.dni,
+            "tipo": self.tipo
+        }
     
 
 class Administrador(Usuario):
     def __init__(self, usuario, contraseña, nombre, apellido, dni):
         super().__init__(usuario, contraseña, nombre, apellido, dni)
         self.tipo = "admin"
-        # agregar atributos específicos para el administrador o nah? supomgo que si igual :(
+        
     def menu(self):
         print("Menu administrador")        
-    #def agregar_funcion(self):
-    #def eliminar_funcion(self):
-    #def modificar_funcion(self):
 
 
 class Cliente(Usuario):
     def __init__(self, usuario, contraseña, nombre, apellido, dni):
         super().__init__(usuario, contraseña, nombre, apellido, dni)
         self.tipo = "cliente"
-        # nu se, agregar mas atributos especificos del cliente?
+        
     def menu(self):
         print("Menu cliente")
-    #def comprar_entrada(self):
-    
+
 
 class Funcion:
     def __init__(self, pelicula, sala, fecha, hora, precio, capacidad):
@@ -73,3 +80,19 @@ class Funcion:
             Precio: ${self.precio}
             Lugares: {self.capacidad}
             """)
+
+class Entrada:
+    def __init__(self, id_entrada, cliente, funcion):
+        self.id_entrada = id_entrada
+        self.cliente = cliente
+        self.pelicula = funcion.pelicula
+        self.sala = funcion.sala
+        self.fecha = funcion.fecha
+        self.hora = funcion.hora
+        self.precio = funcion.precio
+    
+    def to_dict(self):
+        return {
+            "funcion": self.funcion.to_dict(),
+            "cliente": self.cliente.to_dict()
+        }
