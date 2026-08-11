@@ -108,7 +108,7 @@ class Sistema:
         self.usuarios = [] #lista vacía como atributo del objeto Sistema para guardar todos los usuarios
         self.funciones = [] #idem pero pa funciones
         self.entradas = [] #idem idem pero para guardar todas las compras :p
-        self.usuario_actual = None #quien los quiere usar actualmente :p
+        self.usuario_actual = None #quien los quiere usar actualmente :p, None by default pq no hay nadie logueado al principio duh ;p
     
     def existe_usuario(self, nombre_usuario): #validacion para que no se puedan registrar dos usuarios con el mismo nombre
         for usuario in self.usuarios:
@@ -128,3 +128,51 @@ class Sistema:
                 self.usuario_actual = usuario
                 return usuario
         return None      
+    
+    def agregar_funcion(self, funcion):
+        self.funciones.append(funcion)
+    
+    def eliminar_funcion(self, indice): #eliminar por indice
+        if 0 <= indice < len(self.funciones):
+            self.funciones.pop(indice)
+            return True
+        return False
+    
+    def modificar_funcion(self, indice, pelicula, sala, fecha, hora, precio, capacidad): #tmb por indice
+        if 0 <= indice < len(self.funciones):
+            funcion = self.funciones[indice]
+            funcion.pelicula = pelicula
+            funcion.sala = sala
+            funcion.fecha = fecha
+            funcion.hora = hora
+            funcion.precio = precio
+            funcion.capacidad = capacidad
+            return True
+        return False
+    
+    def buscar_funcion(self, pelicula):
+        resultados = []
+        for funcion in self.funciones:
+            if pelicula.lower() in funcion.pelicula.lower():
+                resultados.append(funcion)
+        return resultados
+    
+    def comprar_entrada(self, funcion):
+        if self.usuario_actual is None: #validacionnn si no hay usuario actualmente logueado, no se puede comprar entrada
+            return False
+
+        if not isinstance(self.usuario_actual, Cliente):  #este verifica/valida que el usuario actual sea un cliente para poder comprar
+            return False
+
+        if not funcion.vender_entrada():  #este valida que haya lugar, si la capacidad es 0 entonces la funcion esta agotada por lo tannnnto no hay venta, 
+            return False                  #si la capaxidad es mayor que 0 se descuenta 1 lugar
+
+        id_entrada = len(self.entradas) + 1
+
+        entrada = Entrada(id_entrada, self.usuario_actual, funcion)
+
+        self.entradas.append(entrada)
+
+        return True
+    
+    
