@@ -110,7 +110,7 @@ class Sistema:
         self.entradas = [] #idem idem pero para guardar todas las compras :p
         self.usuario_actual = None #quien los quiere usar actualmente :p, None by default pq no hay nadie logueado al principio duh ;p
     
-    def existe_usuario(self, nombre_usuario): #validacion para que no se puedan registrar dos usuarios con el mismo nombre
+    def existe_usuario(self, nombre_usuario): #validacion para que no se permita registrar dos usuarios con el mismo nombre
         for usuario in self.usuarios:
             if usuario.usuario == nombre_usuario:
                 return True
@@ -165,7 +165,7 @@ class Sistema:
             return False
 
         if not funcion.vender_entrada():  #este valida que haya lugar, si la capacidad es 0 entonces la funcion esta agotada por lo tannnnto no hay venta, 
-            return False                  #si la capaxidad es mayor que 0 se descuenta 1 lugar
+            return False                  #si la capacidad es mayor que 0 se descuenta 1 lugar
 
         id_entrada = len(self.entradas) + 1
 
