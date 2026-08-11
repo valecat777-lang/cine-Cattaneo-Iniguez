@@ -2,9 +2,9 @@
 # super largo y complicado el codigo principal 
 
 class Usuario:
-    def __init__(self, usuario, contraseña, nombre, apellido, dni):
+    def __init__(self, usuario, contrasenia, nombre, apellido, dni):
         self.usuario = usuario
-        self.contraseña = contraseña
+        self.contrasenia = contrasenia
         self.nombre = nombre
         self.apellido = apellido
         self.dni = dni
@@ -16,7 +16,7 @@ class Usuario:
     def to_dict(self):
         return {
             "usuario": self.usuario,
-            "contraseña": self.contraseña,
+            "contrasenia": self.contrasenia,
             "nombre": self.nombre,
             "apellido": self.apellido,
             "dni": self.dni,
@@ -25,8 +25,8 @@ class Usuario:
     
 
 class Administrador(Usuario):
-    def __init__(self, usuario, contraseña, nombre, apellido, dni):
-        super().__init__(usuario, contraseña, nombre, apellido, dni)
+    def __init__(self, usuario, contrasenia, nombre, apellido, dni):
+        super().__init__(usuario, contrasenia, nombre, apellido, dni)
         self.tipo = "admin"
         
     def menu(self):
@@ -34,8 +34,8 @@ class Administrador(Usuario):
 
 
 class Cliente(Usuario):
-    def __init__(self, usuario, contraseña, nombre, apellido, dni):
-        super().__init__(usuario, contraseña, nombre, apellido, dni)
+    def __init__(self, usuario, contrasenia, nombre, apellido, dni):
+        super().__init__(usuario, contrasenia, nombre, apellido, dni)
         self.tipo = "cliente"
         
     def menu(self):
@@ -93,6 +93,38 @@ class Entrada:
     
     def to_dict(self):
         return {
-            "funcion": self.funcion.to_dict(),
-            "cliente": self.cliente.to_dict()
+            "id": self.id_entrada,
+            "cliente": self.cliente.usuario,
+            "pelicula": self.pelicula,
+            "sala": self.sala,
+            "fecha": self.fecha,
+            "hora": self.hora,
+            "precio": self.precio
         }
+        
+class Sistema:
+
+    def __init__(self):
+        self.usuarios = [] #lista vacía como atributo del objeto Sistema para guardar todos los usuarios
+        self.funciones = [] #idem pero pa funciones
+        self.entradas = [] #idem idem pero para guardar todas las compras :p
+        self.usuario_actual = None #quien los quiere usar actualmente :p
+    
+    def existe_usuario(self, nombre_usuario): #validacion para que no se puedan registrar dos usuarios con el mismo nombre
+        for usuario in self.usuarios:
+            if usuario.usuario == nombre_usuario:
+                return True
+        return False
+        
+    def registrar_usuario(self, usuario):
+        if self.existe_usuario(usuario.usuario):
+            return False
+        self.usuarios.append(usuario)
+        return True
+  
+    def iniciar_sesion(self, nombre_usuario, contrasenia):
+        for usuario in self.usuarios:
+            if usuario.usuario == nombre_usuario and usuario.contrasenia == contrasenia:
+                self.usuario_actual = usuario
+                return usuario
+        return None      
