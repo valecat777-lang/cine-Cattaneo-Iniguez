@@ -1,0 +1,1 @@
+#leer/escribir los json + contraseñas (hay que averiguar si conviene hashearlas y como se hace tal cosaaaa :p)
