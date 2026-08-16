@@ -1,33 +1,53 @@
 # En este módulo se encuentran las clases y la lógica principal
 # del sistema de gestión del cine 
 
+# USUARIOS: 
+
 class Usuario:
-    def __init__(self, usuario, contraseña):
+    def __init__(self, usuario, contrasenia, nombre, apellido, dni, tipo="usuario"):
         self.usuario = usuario
-        self.contraseña = contraseña
+        self.contrasenia = contrasenia
+        self.nombre = nombre
+        self.apellido = apellido
+        self.dni = dni
+        self.tipo = tipo
+        
     def menu(self):
-        pass
+        '''
+        Método pensado para ser redefinido por las clases hijas.
+        '''
+        raise NotImplementedError
+
+    def to_dict(self):
+        '''
+        Convierte el objeto Usuario en un diccionario para poder
+        guardarlo en JSON.
+        '''
+        return {
+            "usuario": self.usuario,
+            "contrasenia": self.contrasenia,
+            "nombre": self.nombre,
+            "apellido": self.apellido,
+            "dni": self.dni,
+            "tipo": self.tipo
+        }
     
 
 class Administrador(Usuario):
-    def __init__(self, usuario, contraseña):
-        super().__init__(usuario, contraseña)
-        # agregar atributos específicos para el administrador o nah? supomgo que si igual :(
+    def __init__(self, usuario, contrasenia, nombre, apellido, dni):
+        super().__init__(usuario, contrasenia, nombre, apellido, dni, tipo="administrador")
     def menu(self):
-        print("Menu administrador")        
-    #def agregar_funcion(self):
-    #def eliminar_funcion(self):
-    #def modificar_funcion(self):
+        return "administrador"
 
 
 class Cliente(Usuario):
-    def __init__(self, usuario, contraseña):
-        super().__init__(usuario, contraseña)
-        # nu se, agregar mas atributos especificos del cliente?
+    def __init__(self, usuario, contrasenia, nombre, apellido, dni):
+        super().__init__(usuario, contrasenia, nombre, apellido, dni, tipo="cliente")
     def menu(self):
-        print("Menu cliente")
-    #def comprar_entrada(self):
+        return "cliente"
+
     
+# FUNCIONES/PELIS DEL CINE:
 
 class Funcion:
     def __init__(self, pelicula, sala, fecha, hora, precio, capacidad):
@@ -38,10 +58,10 @@ class Funcion:
         self.precio = precio
         self.capacidad = capacidad
     
-    def hay_lugares(self):
+    def hay_lugares(self):          # Devuelve True si todavía quedan lugares disponibles.
         return self.capacidad > 0
     
-    def vender_entrada(self):
+    def vender_entrada(self):       # Reduce en uno la capacidad de la función y devuelve True si la venta pudo realizarse
         if self.capacidad > 0:
             self.capacidad -= 1
             return True
@@ -68,6 +88,9 @@ class Funcion:
             Lugares: {self.capacidad}
             """)
 
+
+# ENTRADAS:
+
 class Entrada:
     def __init__(self, id_entrada, cliente, funcion):
         self.id_entrada = id_entrada
@@ -78,7 +101,7 @@ class Entrada:
         self.hora = funcion.hora
         self.precio = funcion.precio
     
-    def to_dict(self):
+    def to_dict(self):        # convierte la entrada en diccionario para guardarla en json
         return {
             "id": self.id_entrada,
             "cliente": self.cliente.usuario,
@@ -88,7 +111,10 @@ class Entrada:
             "hora": self.hora,
             "precio": self.precio
         }
-        
+
+
+# SISTEMA:
+
 class Sistema:
 
     def __init__(self):
@@ -105,59 +131,122 @@ class Sistema:
         
     def registrar_usuario(self, usuario):
         if self.existe_usuario(usuario.usuario):
-            return False
+            return False, "El nombre de usuario ya existe."
+
+        if not usuario.usuario.strip():
+            return False, "El usuario no puede estar vacío."
+
+        if not usuario.contrasenia:
+            return False, "La contraseña no puede estar vacía."
+
         self.usuarios.append(usuario)
-        return True
+
+        self.guardar_datos()
+
+        return True, "Usuario registrado correctamente."
   
-    def iniciar_sesion(self, nombre_usuario, contrasenia):
-        for usuario in self.usuarios:
-            if usuario.usuario == nombre_usuario and usuario.contrasenia == contrasenia:
+    def iniciar_sesion(self, nombre_usuario, contrasenia):           # busca un usuario que coincida con el usuario y contraseña
+        for usuario in self.usuarios:                                # si existe, lo establece como usuario actual
+            if usuario.usuario.lower() == nombre_usuario.lower() and usuario.contrasenia == contrasenia:
                 self.usuario_actual = usuario
                 return usuario
         return None      
     
-    def agregar_funcion(self, funcion):
+    def cerrar_sesion(self):   # para cerrar la sesion del usuario actual
+        self.usuario_actual = None
+    
+    def agregar_funcion(self, funcion):  # funcion encargada de agregar una nueva funcion al sistema
+        if funcion.precio <= 0:
+            return False, "El precio debe ser mayor a 0."
+
+        if funcion.capacidad <= 0:
+            return False, "La capacidad debe ser mayor a 0."
+
         self.funciones.append(funcion)
+        self.guardar_datos()
+
+        return True, "Función agregada correctamente."
+
     
     def eliminar_funcion(self, indice): #eliminar por indice
         if 0 <= indice < len(self.funciones):
             self.funciones.pop(indice)
-            return True
-        return False
+            self.guardar_datos()
+            
+            return True, "Función eliminada correctamente."
+
+        return False, "La función seleccionada no existe."
     
-    def modificar_funcion(self, indice, pelicula, sala, fecha, hora, precio, capacidad): #tmb por indice
-        if 0 <= indice < len(self.funciones):
-            funcion = self.funciones[indice]
-            funcion.pelicula = pelicula
-            funcion.sala = sala
-            funcion.fecha = fecha
-            funcion.hora = hora
-            funcion.precio = precio
-            funcion.capacidad = capacidad
-            return True
-        return False
-    
-    def buscar_funcion(self, pelicula):
+    def modificar_funcion(self, indice, pelicula, sala, fecha, hora, precio, capacidad): #tmb por indice, modifica los datos de una funcion existente
+        if not (0 <= indice < len(self.funciones)):
+            return False, "La función seleccionada no existe."
+
+        try:
+            precio = float(precio)
+            capacidad = int(capacidad)
+        except ValueError:
+            return False, "Precio y capacidad deben ser numéricos."
+
+        if precio <= 0:
+            return False, "El precio debe ser mayor a 0."
+
+        if capacidad <= 0:
+            return False, "La capacidad debe ser mayor a 0."
+
+        funcion = self.funciones[indice]
+
+        funcion.pelicula = pelicula
+        funcion.sala = sala
+        funcion.fecha = fecha
+        funcion.hora = hora
+        funcion.precio = precio
+        funcion.capacidad = capacidad
+
+        self.guardar_datos()
+
+        return True, "Función modificada correctamente."
+
+    def buscar_funcion(self, pelicula):   # busca funciones cuya película coincida parcial o totalmente con el texto ingresado
+        texto = pelicula.strip().lower()
         resultados = []
+
         for funcion in self.funciones:
-            if pelicula.lower() in funcion.pelicula.lower():
+            if texto in funcion.pelicula.lower():
                 resultados.append(funcion)
         return resultados
+
     
-    def comprar_entrada(self, funcion):
-        if self.usuario_actual is None: #validacionnn si no hay usuario actualmente logueado, no se puede comprar entrada
-            return False
+    def comprar_entrada(self, indice_funcion):       # realiza la compra de una entrada para la función indicada
+        if self.usuario_actual is None:       # solo los clientes logueados pueden comprar
+            return False, None, "Debe iniciar sesión para comprar entradas."
 
         if not isinstance(self.usuario_actual, Cliente):  #este valida que el usuario actual sea un cliente para poder comprar
-            return False
+            return False, None, "Solo los clientes pueden comprar entradas."
+        
+        if not (0 <= indice_funcion < len(self.funciones)):
+            return False, None, "La función seleccionada no existe."
 
-        if not funcion.vender_entrada():  #este valida que haya lugar, si la capacidad es 0 entonces la funcion esta agotada por lo tannnnto no hay venta, 
-            return False                  #si la capaxidad es mayor que 0 se descuenta 1 lugar
+        funcion = self.funciones[indice_funcion]
+
+        if not funcion.vender_entrada():                                                       #este valida que haya lugar, si la capacidad es 0 entonces la funcion esta agotada por lo tannnnto no hay venta, 
+            return False, None, "No hay entradas disponibles para la función seleccionada."    #si la capaxidad es mayor que 0 se descuenta 1 lugar
 
         id_entrada = len(self.entradas) + 1
 
         entrada = Entrada(id_entrada, self.usuario_actual, funcion)
 
         self.entradas.append(entrada)
+        self.guardar_datos()
+        return True, entrada, "Entrada comprada exitosamente."
+    
+    def entradas_del_usuario_actual(self):     # devuelve las entradas compradas por el usuario actualmente logueado
+        if self.usuario_actual is None:
+            return []
 
-        return True
+        entradas_usuario = []
+
+        for entrada in self.entradas:
+            if entrada.cliente.usuario == self.usuario_actual.usuario:
+                entradas_usuario.append(entrada)
+
+        return entradas_usuario
