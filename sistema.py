@@ -1,6 +1,8 @@
 # En este módulo se encuentran las clases y la lógica principal
 # del sistema de gestión del cine 
 
+from hashlib import sha256 # para hashear las contraseñas
+
 # USUARIOS: 
 
 class Usuario:
