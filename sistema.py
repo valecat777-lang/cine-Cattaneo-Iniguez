@@ -156,8 +156,9 @@ class Sistema:
         if not usuario.contrasenia:
             return False, "La contraseña no puede estar vacía."
 
-        self.usuarios.append(usuario)
+        usuario.contrasenia = hash_password(usuario.contrasenia)
 
+        self.usuarios.append(usuario)
         self.guardar_datos()
 
         return True, "Usuario registrado correctamente."
@@ -204,9 +205,8 @@ class Sistema:
 
         return False, "La función seleccionada no existe."
 
-    def modificar_funcion(
-        self, indice, pelicula, sala, fecha, hora, precio, capacidad
-    ):  # tmb por indice, modifica los datos de una funcion existente
+    def modificar_funcion(self, indice, pelicula, sala, fecha, hora, precio, capacidad):
+        # verifica que la función seleccionada exista:
         if not (0 <= indice < len(self.funciones)):
             return False, "La función seleccionada no existe."
 
@@ -216,9 +216,11 @@ class Sistema:
         except ValueError:
             return False, "Precio y capacidad deben ser numéricos."
 
+        # el precio debe ser mayor a cero:
         if precio <= 0:
             return False, "El precio debe ser mayor a 0."
 
+        # la capacidad debe ser mayor a cero:
         if capacidad <= 0:
             return False, "La capacidad debe ser mayor a 0."
 
@@ -246,6 +248,12 @@ class Sistema:
                 resultados.append(funcion)
         return resultados
 
+    def generar_id_entrada(self):     # Genera automáticamente el próximo ID de entrada.
+        if not self.entradas:
+            return 1
+
+        return max(entrada.id_entrada for entrada in self.entradas) + 1
+
     def comprar_entrada(
         self, indice_funcion
     ):  # realiza la compra de una entrada para la función indicada
@@ -269,14 +277,15 @@ class Sistema:
                 "No hay entradas disponibles para la función seleccionada.",
             )  # si la capaxidad es mayor que 0 se descuenta 1 lugar
 
-        id_entrada = len(self.entradas) + 1
+        id_entrada = self.generar_id_entrada()          # genera automáticamente el id de la entrada
 
         entrada = Entrada(id_entrada, self.usuario_actual, funcion)
 
         self.entradas.append(entrada)
         self.guardar_datos()
-        return True, entrada, "Entrada comprada exitosamente."
 
+        return True, entrada, "Entrada comprada exitosamente."
+    
     def entradas_del_usuario_actual(
         self,
     ):  # devuelve las entradas compradas por el usuario actualmente logueado
@@ -307,6 +316,3 @@ class Sistema:
         guardar_usuarios(self.usuarios)
         guardar_funciones(self.funciones)
         guardar_entradas(self.entradas)
-
-    def hash_password(contrasenia):
-        return sha256(contrasenia.encode("utf-8")).hexdigest()
