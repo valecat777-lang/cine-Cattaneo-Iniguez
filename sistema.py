@@ -138,24 +138,44 @@ class Sistema:
         self.entradas = []  # idem idem pero para guardar todas las compras :p
         self.usuario_actual = None  # quien los quiere usar actualmente :p, None by default pq no hay nadie logueado al principio duh ;p
 
-    def existe_usuario(
-        self, nombre_usuario
-    ):  # validacion para que no se puedan registrar dos usuarios con el mismo nombre
+    def existe_usuario(self, nombre_usuario):
+    # Verifica si ya existe un usuario con ese nombre
+        nombre_usuario = nombre_usuario.strip().lower()
         for usuario in self.usuarios:
-            if usuario.usuario == nombre_usuario:
+            if usuario.usuario.lower() == nombre_usuario:
                 return True
         return False
 
     def registrar_usuario(self, usuario):
+        # Verifica que el nombre de usuario no esté repetido.
         if self.existe_usuario(usuario.usuario):
             return False, "El nombre de usuario ya existe."
 
+        # Verifica datos obligatorios.
         if not usuario.usuario.strip():
             return False, "El usuario no puede estar vacío."
 
         if not usuario.contrasenia:
             return False, "La contraseña no puede estar vacía."
 
+        if not usuario.nombre.strip():
+            return False, "El nombre no puede estar vacío."
+
+        if not usuario.apellido.strip():
+            return False, "El apellido no puede estar vacío."
+
+        dni = str(usuario.dni).strip()
+
+        if not dni.isdigit():
+            return False, "El DNI debe contener solamente números."
+
+        if len(dni) <= 7:
+            return False, "El DNI debe tener 7 números."
+
+        # Guardamos el usuario con el nombre limpio.
+        usuario.usuario = usuario.usuario.strip()
+
+        # La contraseña se guarda hasheada.
         usuario.contrasenia = hash_password(usuario.contrasenia)
 
         self.usuarios.append(usuario)
@@ -182,14 +202,59 @@ class Sistema:
     def cerrar_sesion(self):  # para cerrar la sesion del usuario actual
         self.usuario_actual = None
 
-    def agregar_funcion(
-        self, funcion
-    ):  # funcion encargada de agregar una nueva funcion al sistema
-        if funcion.precio <= 0:
+    def _validar_datos_funcion(self, pelicula, sala, fecha, hora, precio, capacidad):
+        # Verifica que los textos obligatorios no estén vacíos.
+        if not str(pelicula).strip():
+            return False, "La película no puede estar vacía."
+
+        if not str(sala).strip():
+            return False, "La sala no puede estar vacía."
+
+        if not str(fecha).strip():
+            return False, "La fecha no puede estar vacía."
+
+        if not str(hora).strip():
+            return False, "La hora no puede estar vacía."
+
+        # Verifica que precio sea numérico.
+        try:
+            precio = float(precio)
+        except (ValueError, TypeError):
+            return False, "El precio debe ser numérico."
+
+        if precio <= 0:
             return False, "El precio debe ser mayor a 0."
 
-        if funcion.capacidad <= 0:
+        # Verifica que capacidad sea un número entero.
+        try:
+            capacidad = int(capacidad)
+        except (ValueError, TypeError):
+            return False, "La capacidad debe ser un número entero."
+
+        if capacidad <= 0:
             return False, "La capacidad debe ser mayor a 0."
+
+        return True, ""
+
+    def agregar_funcion(self, funcion):
+        valido, mensaje = self._validar_datos_funcion(
+            funcion.pelicula,
+            funcion.sala,
+            funcion.fecha,
+            funcion.hora,
+            funcion.precio,
+            funcion.capacidad
+        )
+
+        if not valido:
+            return False, mensaje
+
+        funcion.pelicula = funcion.pelicula.strip()
+        funcion.sala = funcion.sala.strip()
+        funcion.fecha = funcion.fecha.strip()
+        funcion.hora = funcion.hora.strip()
+        funcion.precio = float(funcion.precio)
+        funcion.capacidad = int(funcion.capacidad)
 
         self.funciones.append(funcion)
         self.guardar_datos()
@@ -206,32 +271,30 @@ class Sistema:
         return False, "La función seleccionada no existe."
 
     def modificar_funcion(self, indice, pelicula, sala, fecha, hora, precio, capacidad):
-        # verifica que la función seleccionada exista:
+        # Verifica que la función exista.
         if not (0 <= indice < len(self.funciones)):
             return False, "La función seleccionada no existe."
 
-        try:
-            precio = float(precio)
-            capacidad = int(capacidad)
-        except ValueError:
-            return False, "Precio y capacidad deben ser numéricos."
+        valido, mensaje = self._validar_datos_funcion(
+            pelicula,
+            sala,
+            fecha,
+            hora,
+            precio,
+            capacidad
+        )
 
-        # el precio debe ser mayor a cero:
-        if precio <= 0:
-            return False, "El precio debe ser mayor a 0."
-
-        # la capacidad debe ser mayor a cero:
-        if capacidad <= 0:
-            return False, "La capacidad debe ser mayor a 0."
+        if not valido:
+            return False, mensaje
 
         funcion = self.funciones[indice]
 
-        funcion.pelicula = pelicula
-        funcion.sala = sala
-        funcion.fecha = fecha
-        funcion.hora = hora
-        funcion.precio = precio
-        funcion.capacidad = capacidad
+        funcion.pelicula = str(pelicula).strip()
+        funcion.sala = str(sala).strip()
+        funcion.fecha = str(fecha).strip()
+        funcion.hora = str(hora).strip()
+        funcion.precio = float(precio)
+        funcion.capacidad = int(capacidad)
 
         self.guardar_datos()
 
