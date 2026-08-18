@@ -48,7 +48,7 @@ if __name__ == "__main__":
     mi_sistema_cine = Sistema()
     mi_sistema_cine.cargar_datos()
 
-    # 2. Creamos la ventana principal de Tkinter
+    # 2. Creamos la ventana principal de tkinter
     root = tk.Tk()
     
     # 3. Conectamos la interfaz con el cerebro
