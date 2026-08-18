@@ -44,15 +44,15 @@ class VentanaLogin:
         VentanaRegistro(ventana_secundaria, self.sistema)
 
 if __name__ == "__main__":
-    # 1. Creamos el cerebro del programa y cargamos los JSON
+    #Creamos el cerebro del programa y cargamos los JSON
     mi_sistema_cine = Sistema()
     mi_sistema_cine.cargar_datos()
 
-    # 2. Creamos la ventana principal de tkinter
+    #Creamos la ventana principal de tkinter
     root = tk.Tk()
     
-    # 3. Conectamos la interfaz con el cerebro
+    #Conectamos la interfaz con el cerebro
     app = VentanaLogin(root, mi_sistema_cine)
     
-    # 4. Arrancamos el loop gráfico
+    #Arrancamos el loop gráfico
     root.mainloop()

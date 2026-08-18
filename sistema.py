@@ -71,17 +71,13 @@ class Funcion:
     def hay_lugares(self):  # Devuelve True si todavía quedan lugares disponibles.
         return self.capacidad > 0
 
-    def vender_entrada(
-        self,
-    ):  # Reduce en uno la capacidad de la función y devuelve True si la venta pudo realizarse
+    def vender_entrada(self):  # Reduce en uno la capacidad de la función y devuelve True si la venta pudo realizarse
         if self.capacidad > 0:
             self.capacidad -= 1
             return True
         return False
 
-    def to_dict(
-        self,
-    ):  # Este va a ser el metodo que cuando se cree un obj, lo va a convertir en un diccionario para json
+    def to_dict(self):  # Este va a ser el metodo que cuando se cree un obj, lo va a convertir en un diccionario para json
         return {
             "pelicula": self.pelicula,
             "sala": self.sala,
@@ -169,8 +165,8 @@ class Sistema:
         if not dni.isdigit():
             return False, "El DNI debe contener solamente números."
 
-        if len(dni) < 8 or len(dni) < 7:
-            return False, "El DNI debe tener 7 u 8 números."
+        if len(dni) < 7 or len(dni) > 8:
+            return False, "El DNI debe tener entre 7 u 8 números."
         #El dni no puede estar repetido, si ya hay un usuario con ese dni, no se puede registrar otro
         for u in self.usuarios:
             if u.dni == dni:
@@ -238,14 +234,26 @@ class Sistema:
 
         if capacidad <= 0:
             return False, "La capacidad debe ser mayor a 0."
+        # Verifica que la función no esté repetida.
+       
+        for funcion in self.funciones:
+            if (
+                funcion.pelicula.lower() == pelicula.strip().lower()
+                and funcion.sala.lower() == sala.strip().lower()
+                and funcion.fecha.strip() == fecha.strip()
+                and funcion.hora.strip() == hora.strip()
+            ):
+                return False, "Ya existe una función con esos datos."
 
         return True, ""
-
+    #verifica que la función no esté repetida
+        
+        
 
     def agregar_funcion(self, funcion):
         # Verifica que el usuario actual sea un administrador antes de permitir agregar una función.
         if not isinstance(self.usuario_actual, Administrador):
-            return False, "Solo los administradores pueden agregar funciones."
+           return False, "Solo los administradores pueden agregar funciones."
         valido, mensaje = self._validar_datos_funcion(
             funcion.pelicula,
             funcion.sala,

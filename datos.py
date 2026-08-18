@@ -2,7 +2,7 @@
 import json
 import os  # permite comprobar si un archivo existe
 
-from sistema import Administrador, Cliente, Entrada, Funcion
+#from sistema import Administrador, Cliente, Entrada, Funcion
 
 # Archivos donde se guardan los datos.
 ARCHIVO_USUARIOS = "usuarios.json"
@@ -44,6 +44,7 @@ def escribir_json(nombre_archivo, datos): # Guarda los datos en el archivo json
 # USUARIOS:
 
 def cargar_usuarios():  # funcion que carga los usuarios guardados en usuarios.json
+    from sistema import Administrador, Cliente          # Importación local
     datos = leer_json(ARCHIVO_USUARIOS)
     usuarios = []
 
@@ -87,6 +88,7 @@ def guardar_usuarios(usuarios): # convierte los usuarios a diccionarios y los gu
 # MOVIES DEL CINE:
 
 def cargar_funciones():            # Carga las funciones guardadas en funciones.json
+    from sistema import Funcion     # Importación local
     datos = leer_json(ARCHIVO_FUNCIONES)
     funciones = []
 
@@ -121,6 +123,7 @@ def guardar_funciones(funciones):     # Convierte las funciones a diccionarios y
 
 def cargar_entradas(usuarios):
     # Carga las entradas guardadas en compras.json:
+    from sistema import Entrada          # Importación local
     datos = leer_json(ARCHIVO_COMPRAS)
     entradas = []
 
@@ -169,3 +172,5 @@ def guardar_entradas(entradas):
         datos.append(entrada.to_dict())
 
     return escribir_json(ARCHIVO_COMPRAS, datos)
+
+
