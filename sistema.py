@@ -271,7 +271,7 @@ class Sistema:
         return True, "Función agregada correctamente."
 
     def eliminar_funcion(self, indice):  # eliminar por indice
-        # Verifica que el usuario actual sea un administrador antes de permitir eliminar una función.
+        #Verifica que el usuario actual sea un administrador antes de permitir eliminar una función.
         if not isinstance(self.usuario_actual, Administrador):
             return False, "Solo los administradores pueden eliminar funciones."
         if 0 <= indice < len(self.funciones):
