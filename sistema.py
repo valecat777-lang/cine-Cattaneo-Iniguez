@@ -169,8 +169,13 @@ class Sistema:
         if not dni.isdigit():
             return False, "El DNI debe contener solamente números."
 
-        if len(dni) <= 7:
-            return False, "El DNI debe tener 7 números."
+        if len(dni) < 8 or len(dni) < 7:
+            return False, "El DNI debe tener 7 u 8 números."
+        #El dni no puede estar repetido, si ya hay un usuario con ese dni, no se puede registrar otro
+        for u in self.usuarios:
+            if u.dni == dni:
+                return False, "El DNI ya está registrado."
+        
 
         # Guardamos el usuario con el nombre limpio.
         usuario.usuario = usuario.usuario.strip()
@@ -236,7 +241,11 @@ class Sistema:
 
         return True, ""
 
+
     def agregar_funcion(self, funcion):
+        # Verifica que el usuario actual sea un administrador antes de permitir agregar una función.
+        if not isinstance(self.usuario_actual, Administrador):
+            return False, "Solo los administradores pueden agregar funciones."
         valido, mensaje = self._validar_datos_funcion(
             funcion.pelicula,
             funcion.sala,
@@ -262,6 +271,9 @@ class Sistema:
         return True, "Función agregada correctamente."
 
     def eliminar_funcion(self, indice):  # eliminar por indice
+        # Verifica que el usuario actual sea un administrador antes de permitir eliminar una función.
+        if not isinstance(self.usuario_actual, Administrador):
+            return False, "Solo los administradores pueden eliminar funciones."
         if 0 <= indice < len(self.funciones):
             self.funciones.pop(indice)
             self.guardar_datos()
@@ -271,6 +283,9 @@ class Sistema:
         return False, "La función seleccionada no existe."
 
     def modificar_funcion(self, indice, pelicula, sala, fecha, hora, precio, capacidad):
+        #Verifica que el usuario actual sea un administrador antes de permitir modificar una función.
+        if not isinstance(self.usuario_actual, Administrador):
+            return False, "Solo los administradores pueden modificar funciones."
         # Verifica que la función exista.
         if not (0 <= indice < len(self.funciones)):
             return False, "La función seleccionada no existe."
