@@ -101,6 +101,7 @@ def cargar_funciones():            # Carga las funciones guardadas en funciones.
                 datos_funcion["hora"],
                 float(datos_funcion["precio"]),
                 int(datos_funcion["capacidad"])
+                # Se obtiene la ruta de la imagen si existe, sino se asigna una cadena vacía
             )
             funciones.append(funcion)
 

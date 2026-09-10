@@ -1,26 +1,18 @@
 [
     {
-        "usuario": "AgusIniguez123",
-        "contrasenia": "54d5cb2d332dbdb4850293caae4559ce88b65163f1ea5d4e4b3ac49d772ded14",
-        "nombre": "Agustin",
-        "apellido": "Iniguez",
-        "dni": "42704494",
-        "tipo": "cliente"
-    },
-    {
-        "usuario": "AgusIniguez122",
-        "contrasenia": "85135f3c6bfe9df1735f8806f045ae73cece7219f7840d8e7e9297a7f846b48a",
-        "nombre": "Agustin",
-        "apellido": "Iniguez",
-        "dni": "42704494",
-        "tipo": "cliente"
-    },
-    {
         "usuario": "AgusIniguez12",
-        "contrasenia": "54d5cb2d332dbdb4850293caae4559ce88b65163f1ea5d4e4b3ac49d772ded14",
+        "contrasenia": "f4049b8cd0024063f76aa2261c2fdbde08d594d4e92bea7f9ebbd915cda7fc61",
         "nombre": "Agustin",
-        "apellido": "Iniguez",
-        "dni": "42704498",
+        "apellido": "Iñiguez",
+        "dni": "42704494",
+        "tipo": "administrador"
+    },
+    {
+        "usuario": "AgusIniguez",
+        "contrasenia": "f4049b8cd0024063f76aa2261c2fdbde08d594d4e92bea7f9ebbd915cda7fc61",
+        "nombre": "Agustin",
+        "apellido": "Ribba",
+        "dni": "42704492",
         "tipo": "cliente"
     }
 ]

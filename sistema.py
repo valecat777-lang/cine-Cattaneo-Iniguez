@@ -60,13 +60,14 @@ class Cliente(Usuario):
 
 
 class Funcion:
-    def __init__(self, pelicula, sala, fecha, hora, precio, capacidad):
+    def __init__(self, pelicula, sala, fecha, hora, precio, capacidad, imagen = "Fotos/HPCDF.png"):
         self.pelicula = pelicula
         self.sala = sala
         self.fecha = fecha
         self.hora = hora
         self.precio = precio
         self.capacidad = capacidad
+        self.imagen = imagen
 
     def hay_lugares(self):  # Devuelve True si todavía quedan lugares disponibles.
         return self.capacidad > 0
@@ -85,6 +86,7 @@ class Funcion:
             "hora": self.hora,
             "precio": self.precio,
             "capacidad": self.capacidad,
+            "imagen": self.imagen
         }
 
     def mostrar(self):

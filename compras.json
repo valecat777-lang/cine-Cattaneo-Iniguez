@@ -1,1 +1,11 @@
-[]
+[
+    {
+        "id": 1,
+        "cliente": "AgusIniguez",
+        "pelicula": "Harry Potter",
+        "sala": "20",
+        "fecha": "20/09/2026",
+        "hora": "18:00",
+        "precio": 9000.0
+    }
+]
