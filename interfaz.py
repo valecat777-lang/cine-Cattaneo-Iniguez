@@ -406,7 +406,6 @@ class VentanaPrincipalCine:
             )
             exito, msj = self.sistema.agregar_funcion(nueva_f)
         else:
-            # Modo Modificar Película Existente
             exito, msj = self.sistema.modificar_funcion(
                 self.indice_edicion,
                 pelicula,
