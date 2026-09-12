@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from sistema import Cliente, Administrador  # IMPORTANTE: Ahora importamos también Administrador
+from sistema import Cliente
 
 class VentanaRegistro:
     def __init__(self, root, sistema):
@@ -31,18 +31,6 @@ class VentanaRegistro:
         self.entry_contrasenia = tk.Entry(self.ventana, show="*")
         self.entry_contrasenia.pack(pady=2)
 
-        #Selector de Tipo de Usuario ---
-        tk.Label(self.ventana, text="Tipo de Cuenta:").pack(pady=2)
-        
-        # Variable para guardar la opción elegida (por defecto "cliente")
-        self.tipo_var = tk.StringVar(value="cliente") 
-        
-        frame_radios = tk.Frame(self.ventana)
-        frame_radios.pack(pady=2)
-        
-        tk.Radiobutton(frame_radios, text="Cliente", variable=self.tipo_var, value="cliente").pack(side=tk.LEFT, padx=5)
-        tk.Radiobutton(frame_radios, text="Administrador", variable=self.tipo_var, value="administrador").pack(side=tk.LEFT, padx=5)
-
         # Botón para confirmar el registro
         tk.Button(self.ventana, text="Registrarse", command=self.registrar).pack(pady=15)
 
@@ -54,21 +42,15 @@ class VentanaRegistro:
         usuario = self.entry_usuario.get()
         contrasenia = self.entry_contrasenia.get()
 
-      #Leer qué tipo de cuenta seleccionó el usuario
-        tipo_seleccionado = self.tipo_var.get()
-
-        #Crear el objeto correspondiente (Administrador o Cliente)
-        if tipo_seleccionado == "administrador":
-            nuevo_usuario = Administrador(usuario, contrasenia, nombre, apellido, dni)
-        else:
-            nuevo_usuario = Cliente(usuario, contrasenia, nombre, apellido, dni)
+        #Todos los registros nuevos corresponden a clientes.
+        nuevo_usuario = Cliente(usuario, contrasenia, nombre, apellido, dni)
 
         #Pedirle al sistema que lo valide y guarde en el JSON (funciona igual para ambos)
         exito, mensaje = self.sistema.registrar_usuario(nuevo_usuario)
 
         #Mostrar el resultado en pantalla
         if exito:
-            messagebox.showinfo("Éxito", mensaje)
+            messagebox.showinfo("Registro exitoso", mensaje)
             self.ventana.destroy()  # Cierra la ventana de registro tras el éxito
         else:
             messagebox.showerror("Error de Registro", mensaje)

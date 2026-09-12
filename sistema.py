@@ -87,17 +87,6 @@ class Funcion:
             "capacidad": self.capacidad,
         }
 
-    def mostrar(self):
-
-        print(f"""
-            Película: {self.pelicula}
-            Sala: {self.sala}
-            Fecha: {self.fecha}
-            Hora: {self.hora}
-            Precio: ${self.precio}
-            Lugares: {self.capacidad}
-            """)
-
 
 # ENTRADAS:
 
@@ -203,7 +192,8 @@ class Sistema:
     def cerrar_sesion(self):  # para cerrar la sesion del usuario actual
         self.usuario_actual = None
 
-    def _validar_datos_funcion(self, pelicula, sala, fecha, hora, precio, capacidad):
+    def _validar_datos_funcion( self, pelicula, sala, fecha, hora, precio, capacidad, indice_excluir=None):
+       
         # Verifica que los textos obligatorios no estén vacíos.
         if not str(pelicula).strip():
             return False, "La película no puede estar vacía."
@@ -217,7 +207,7 @@ class Sistema:
         if not str(hora).strip():
             return False, "La hora no puede estar vacía."
 
-        # Verifica que precio sea numérico.
+        # Verifica que el precio sea numérico.
         try:
             precio = float(precio)
         except (ValueError, TypeError):
@@ -226,7 +216,7 @@ class Sistema:
         if precio <= 0:
             return False, "El precio debe ser mayor a 0."
 
-        # Verifica que capacidad sea un número entero.
+        # Verifica que la capacidad sea un número entero.
         try:
             capacidad = int(capacidad)
         except (ValueError, TypeError):
@@ -234,9 +224,13 @@ class Sistema:
 
         if capacidad <= 0:
             return False, "La capacidad debe ser mayor a 0."
-        # Verifica que la función no esté repetida.
-       
-        for funcion in self.funciones:
+
+        # Verifica que no exista otra función con los mismos datos (si estamos modificando una función, se ignora la propia función)
+        for i, funcion in enumerate(self.funciones):
+
+            if i == indice_excluir:
+                continue
+
             if (
                 funcion.pelicula.lower() == pelicula.strip().lower()
                 and funcion.sala.lower() == sala.strip().lower()
@@ -246,8 +240,6 @@ class Sistema:
                 return False, "Ya existe una función con esos datos."
 
         return True, ""
-    #verifica que la función no esté repetida
-        
         
 
     def agregar_funcion(self, funcion):
@@ -291,21 +283,16 @@ class Sistema:
         return False, "La función seleccionada no existe."
 
     def modificar_funcion(self, indice, pelicula, sala, fecha, hora, precio, capacidad):
-        #Verifica que el usuario actual sea un administrador antes de permitir modificar una función.
+        # Verifica que el usuario actual sea administrador
         if not isinstance(self.usuario_actual, Administrador):
             return False, "Solo los administradores pueden modificar funciones."
-        # Verifica que la función exista.
+
+        # Verifica que la función exista
         if not (0 <= indice < len(self.funciones)):
             return False, "La función seleccionada no existe."
 
-        valido, mensaje = self._validar_datos_funcion(
-            pelicula,
-            sala,
-            fecha,
-            hora,
-            precio,
-            capacidad
-        )
+        # Valida los nuevos datos
+        valido, mensaje = self._validar_datos_funcion(pelicula, sala, fecha, hora, precio, capacidad, indice_excluir=indice)
 
         if not valido:
             return False, mensaje
@@ -323,9 +310,7 @@ class Sistema:
 
         return True, "Función modificada correctamente."
 
-    def buscar_funcion(
-        self, pelicula
-    ):  # busca funciones cuya película coincida parcial o totalmente con el texto ingresado
+    def buscar_funcion(self, pelicula):  # busca funciones cuya película coincida parcial o totalmente con el texto ingresado
         texto = pelicula.strip().lower()
         resultados = []
 
