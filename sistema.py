@@ -192,7 +192,7 @@ class Sistema:
     def cerrar_sesion(self):  # para cerrar la sesion del usuario actual
         self.usuario_actual = None
 
-    def _validar_datos_funcion( self, pelicula, sala, fecha, hora, precio, capacidad, indice_excluir=None):
+    def validar_datos_funcion( self, pelicula, sala, fecha, hora, precio, capacidad, indice_excluir=None):
        
         # Verifica que los textos obligatorios no estén vacíos.
         if not str(pelicula).strip():
@@ -292,7 +292,7 @@ class Sistema:
             return False, "La función seleccionada no existe."
 
         # Valida los nuevos datos
-        valido, mensaje = self._validar_datos_funcion(pelicula, sala, fecha, hora, precio, capacidad, indice_excluir=indice)
+        valido, mensaje = self.validar_datos_funcion(pelicula, sala, fecha, hora, precio, capacidad, indice_excluir=indice)
 
         if not valido:
             return False, mensaje
