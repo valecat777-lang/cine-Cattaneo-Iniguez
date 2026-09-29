@@ -14,5 +14,13 @@
         "apellido": "Ribba",
         "dni": "42704492",
         "tipo": "cliente"
+    },
+    {
+        "usuario": "NanoBar19",
+        "contrasenia": "c7d80f1b67b6dae61e94591866fdba99042a75de25704f0b5e4a4c5c6e627c8a",
+        "nombre": "Andrés",
+        "apellido": "Baraldo",
+        "dni": "39695736",
+        "tipo": "cliente"
     }
 ]

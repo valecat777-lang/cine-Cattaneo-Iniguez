@@ -8,17 +8,28 @@ from sistema import Administrador, Cliente, Funcion, Sistema
 
 
 class TarjetaPelicula(tk.Frame):
-    """Representa una tarjeta/poster individual al estilo Cinemark."""
+ 
+    ANCHO_POSTER = 210
+    ALTO_POSTER = 300
+    TAMANIO_TITULO = 16
+    TAMANIO_DETALLE = 11
+    TAMANIO_BOTON = 11
+    ANCHO_TEXTO_TITULO = 220
+    ESPACIADO_INTERNO = 15
 
     def __init__(self, parent, funcion, indice, callback_comprar, es_cliente):
         super().__init__(
-            parent, bg="#1e1e2e", bd=1, relief="solid", padx=10, pady=10
+            parent,
+            bg="#1e1e2e",
+            bd=1,
+            relief="solid",
+            padx=self.ESPACIADO_INTERNO,
+            pady=self.ESPACIADO_INTERNO,
         )
         self.funcion = funcion
         self.indice = indice
         self.callback_comprar = callback_comprar
 
-        # --- Cargar y Redimensionar Imagen / Poster ---
         self.poster_image = self.cargar_imagen(
             getattr(funcion, "imagen", "default.jpg")
         )
@@ -30,10 +41,10 @@ class TarjetaPelicula(tk.Frame):
         lbl_titulo = tk.Label(
             self,
             text=funcion.pelicula,
-            font=("Arial", 11, "bold"),
+            font=("Arial", self.TAMANIO_TITULO, "bold"),
             fg="#ffffff",
             bg="#1e1e2e",
-            wraplength=160,
+            wraplength=self.ANCHO_TEXTO_TITULO,
         )
         lbl_titulo.pack()
 
@@ -42,21 +53,21 @@ class TarjetaPelicula(tk.Frame):
         lbl_info = tk.Label(
             self,
             text=info_txt,
-            font=("Arial", 9),
+            font=("Arial", self.TAMANIO_DETALLE),
             fg="#a6adc8",
             bg="#1e1e2e",
             justify="center",
         )
         lbl_info.pack(pady=4)
 
-        # --- Botón Comprar Ticket ---
+
         if es_cliente:
             btn_comprar = tk.Button(
                 self,
                 text="Comprar Ticket",
                 bg="#e74c3c",
                 fg="white",
-                font=("Arial", 9, "bold"),
+                font=("Arial", self.TAMANIO_BOTON, "bold"),
                 activebackground="#c0392b",
                 activeforeground="white",
                 relief="flat",
@@ -66,11 +77,15 @@ class TarjetaPelicula(tk.Frame):
 
     def cargar_imagen(self, ruta_imagen):
         if not os.path.exists(ruta_imagen):
-            img = Image.new("RGB", (150, 210), color="#313244")
+            img = Image.new(
+                "RGB", (self.ANCHO_POSTER, self.ALTO_POSTER), color="#313244"
+            )
         else:
             img = Image.open(ruta_imagen)
 
-        img = img.resize((150, 210), Image.Resampling.LANCZOS)
+        img = img.resize(
+            (self.ANCHO_POSTER, self.ALTO_POSTER), Image.Resampling.LANCZOS
+        )
         return ImageTk.PhotoImage(img)
 
 
@@ -80,21 +95,19 @@ class VentanaPrincipalCine:
         self.root = root
         self.sistema = sistema
         self.root.title(
-            f"Cinemark / Cine App - {self.sistema.usuario_actual.usuario}"
+            f"Tu cine de confianza / Cine App - {self.sistema.usuario_actual.usuario}"
         )
-        self.root.geometry("1000x750")
+        self.root.geometry("1200x850")
         self.root.configure(bg="#11111b")
 
-        # Variable para controlar si el admin está editando una función existente (guarda su índice)
         self.indice_edicion = None
 
-        # --- Navbar estilo Cinemark ---
         frame_nav = tk.Frame(self.root, bg="#181825", height=60)
         frame_nav.pack(fill=tk.X)
 
         label_logo = tk.Label(
             frame_nav,
-            text="🎬 CINEMARK",
+            text="🎬 Tu cine de confianza",
             font=("Arial", 16, "bold"),
             fg="#e74c3c",
             bg="#181825",
@@ -120,7 +133,6 @@ class VentanaPrincipalCine:
         )
         btn_logout.pack(side=tk.RIGHT, padx=5)
 
-        # --- Notebook / Pestañas ---
         style = ttk.Style()
         style.theme_use("default")
         style.configure("TNotebook", background="#11111b", borderwidth=0)
@@ -135,20 +147,17 @@ class VentanaPrincipalCine:
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
 
-        # Tab Cartelera
+
         self.tab_cartelera = tk.Frame(self.notebook, bg="#11111b")
         self.notebook.add(self.tab_cartelera, text="Cartelera en Vivo")
         self.crear_vista_cartelera()
 
-        # Tab Admin (Edición/Modificación)
+    
         if isinstance(self.sistema.usuario_actual, Administrador):
             self.tab_admin = tk.Frame(self.notebook, bg="#11111b")
             self.notebook.add(self.tab_admin, text="Panel Admin")
             self.crear_vista_admin()
 
-    # -------------------------------------------------------------
-    # TAB 1: CARTELERA
-    # -------------------------------------------------------------
     def crear_vista_cartelera(self):
         canvas = tk.Canvas(self.tab_cartelera, bg="#11111b", highlightthickness=0)
         scrollbar = ttk.Scrollbar(
@@ -200,9 +209,6 @@ class VentanaPrincipalCine:
         else:
             messagebox.showerror("Error", mensaje)
 
-    # -------------------------------------------------------------
-    # TAB 2: PANEL DE ADMINISTRACIÓN (AGREGAR / MODIFICAR / ELIMINAR)
-    # -------------------------------------------------------------
     def crear_vista_admin(self):
         # Frame Superior: Formulario
         self.frame_form = tk.LabelFrame(

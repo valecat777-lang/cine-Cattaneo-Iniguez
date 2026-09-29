@@ -113,6 +113,7 @@ class Entrada:
         self.fecha = funcion.fecha
         self.hora = funcion.hora
         self.precio = funcion.precio
+        self.cantidad = funcion.cantidad
 
     def to_dict(self):  # convierte la entrada en diccionario para guardarla en json
         return {
@@ -123,6 +124,7 @@ class Entrada:
             "fecha": self.fecha,
             "hora": self.hora,
             "precio": self.precio,
+            "cantidad": self.cantidad
         }
 
 
