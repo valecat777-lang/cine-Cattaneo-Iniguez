@@ -1,10 +1,32 @@
 import os
+import shutil
+import sys
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import filedialog, messagebox, ttk
 from PIL import Image, ImageTk  # Requiere: pip install pillow
 
 from login import VentanaLogin
 from sistema import Administrador, Cliente, Funcion, Sistema
+
+
+def directorio_datos():
+    """Carpeta editable junto al .exe o al código fuente."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def ruta_recurso(ruta):
+    """Devuelve la ubicación de un recurso, incluso dentro del .exe."""
+    if os.path.isabs(ruta):
+        return ruta
+
+    ruta_editable = os.path.join(directorio_datos(), ruta)
+    if os.path.exists(ruta_editable):
+        return ruta_editable
+
+    carpeta_empaquetada = getattr(sys, "_MEIPASS", directorio_datos())
+    return os.path.join(carpeta_empaquetada, ruta)
 
 
 class DialogoCantidad(tk.Toplevel):
@@ -21,7 +43,7 @@ class DialogoCantidad(tk.Toplevel):
         self.funcion = funcion
         self.cantidad = None
 
-        self.title("Tu cine de confianza | Comprar entradas")
+        self.title("Cinemer-K | Comprar entradas")
         self.geometry("430x330")
         self.resizable(False, False)
         self.configure(bg=self.FONDO)
@@ -33,7 +55,7 @@ class DialogoCantidad(tk.Toplevel):
 
         tk.Label(
             contenedor,
-            text="Tu cine de confianza",
+            text="Cinemer-K",
             font=("Arial", 20, "bold"),
             fg=self.ROJO,
             bg=self.FONDO,
@@ -177,7 +199,7 @@ class TarjetaPelicula(tk.Frame):
         lbl_titulo = tk.Label(
             self,
             text=funcion.pelicula,
-            font=("Arial", self.TAMANIO_TITULO, "bold"),
+            font=("Arial", self.obtener_tamanio_titulo(funcion.pelicula), "bold"),
             fg="#ffffff",
             bg="#1e1e2e",
             wraplength=self.ANCHO_TEXTO_TITULO,
@@ -213,7 +235,17 @@ class TarjetaPelicula(tk.Frame):
             )
             btn_comprar.pack(fill=tk.X, pady=(5, 0))
 
+    def obtener_tamanio_titulo(self, titulo):
+        """Reduce la fuente de títulos largos para que ocupen dos líneas."""
+        cantidad_caracteres = len(titulo)
+        if cantidad_caracteres > 37:
+            return 11
+        if cantidad_caracteres > 25:
+            return 12
+        return self.TAMANIO_TITULO
+
     def cargar_imagen(self, ruta_imagen):
+        ruta_imagen = ruta_recurso(ruta_imagen)
         if not os.path.exists(ruta_imagen):
             img = Image.new(
                 "RGB", (self.ANCHO_POSTER, self.ALTO_POSTER), color="#313244"
@@ -233,7 +265,7 @@ class VentanaPrincipalCine:
         self.root = root
         self.sistema = sistema
         self.root.title(
-            f"Tu cine de confianza / Cine App - {self.sistema.usuario_actual.usuario}"
+            f"Cinemer-K / Cine App - {self.sistema.usuario_actual.usuario}"
         )
         self.root.geometry("1200x850")
         self.root.configure(bg="#11111b")
@@ -243,14 +275,22 @@ class VentanaPrincipalCine:
         frame_nav = tk.Frame(self.root, bg="#181825", height=60)
         frame_nav.pack(fill=tk.X)
 
+        self.logo_navegacion = self.cargar_logo_navegacion()
+        if self.logo_navegacion is not None:
+            tk.Label(
+                frame_nav,
+                image=self.logo_navegacion,
+                bg="#181825",
+            ).pack(side=tk.LEFT, padx=(20, 8), pady=10)
+
         label_logo = tk.Label(
             frame_nav,
-            text="🎬 Tu cine de confianza",
+            text="Cinemer-K ",
             font=("Arial", 16, "bold"),
             fg="#e74c3c",
             bg="#181825",
         )
-        label_logo.pack(side=tk.LEFT, padx=20, pady=15)
+        label_logo.pack(side=tk.LEFT, padx=(0, 20), pady=15)
 
         lbl_user = tk.Label(
             frame_nav,
@@ -295,6 +335,14 @@ class VentanaPrincipalCine:
             self.tab_admin = tk.Frame(self.notebook, bg="#11111b")
             self.notebook.add(self.tab_admin, text="Panel Admin")
             self.crear_vista_admin()
+
+    def cargar_logo_navegacion(self):
+        try:
+            logo = Image.open(ruta_recurso(os.path.join("Fotos", "Logo.png"))).convert("RGBA")
+            logo = logo.resize((34, 34), Image.Resampling.LANCZOS)
+            return ImageTk.PhotoImage(logo)
+        except (FileNotFoundError, OSError):
+            return None
 
     def crear_vista_cartelera(self):
         canvas = tk.Canvas(self.tab_cartelera, bg="#11111b", highlightthickness=0)
@@ -402,6 +450,15 @@ class VentanaPrincipalCine:
             entry.grid(row=row, column=col + 1, pady=4, padx=5)
             self.entries[key] = entry
 
+        tk.Button(
+            self.frame_form,
+            text="Elegir imagen...",
+            command=self.seleccionar_imagen,
+            bg="#313244",
+            fg="white",
+            relief="flat",
+        ).grid(row=3, column=2, columnspan=2, sticky="w", pady=4, padx=5)
+
         # Botones de Acción Formulario
         frame_botones_form = tk.Frame(self.frame_form, bg="#181825")
         frame_botones_form.grid(
@@ -471,7 +528,7 @@ class VentanaPrincipalCine:
 
         btn_cargar_editar = tk.Button(
             frame_acciones,
-            text="✏️ Cargar Selección en Formulario para Editar",
+            text="✏️ Editar pelicula seleccionada",
             bg="#f39c12",
             fg="white",
             font=("Arial", 10, "bold"),
@@ -490,6 +547,40 @@ class VentanaPrincipalCine:
         btn_eliminar.pack(side=tk.RIGHT, padx=5)
 
         self.actualizar_tabla_admin()
+
+    def seleccionar_imagen(self):
+        ruta_origen = filedialog.askopenfilename(
+            title="Elegir póster de la película",
+            filetypes=[
+                ("Imágenes", "*.png *.jpg *.jpeg *.webp"),
+                ("Todos los archivos", "*.*"),
+            ],
+        )
+        if not ruta_origen:
+            return
+
+        carpeta_fotos = os.path.join(directorio_datos(), "Fotos")
+        os.makedirs(carpeta_fotos, exist_ok=True)
+
+        nombre, extension = os.path.splitext(os.path.basename(ruta_origen))
+        ruta_destino = os.path.join(carpeta_fotos, f"{nombre}{extension}")
+        contador = 2
+        while (
+            os.path.exists(ruta_destino)
+            and os.path.normcase(os.path.abspath(ruta_destino))
+            != os.path.normcase(os.path.abspath(ruta_origen))
+        ):
+            ruta_destino = os.path.join(carpeta_fotos, f"{nombre}_{contador}{extension}")
+            contador += 1
+
+        if os.path.normcase(os.path.abspath(ruta_destino)) != os.path.normcase(
+            os.path.abspath(ruta_origen)
+        ):
+            shutil.copy2(ruta_origen, ruta_destino)
+
+        ruta_guardada = os.path.join("Fotos", os.path.basename(ruta_destino))
+        self.entries["imagen"].delete(0, tk.END)
+        self.entries["imagen"].insert(0, ruta_guardada)
 
     def actualizar_tabla_admin(self):
         for item in self.tabla_admin.get_children():

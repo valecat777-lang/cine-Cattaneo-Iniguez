@@ -16,7 +16,7 @@ class VentanaRegistro:
     def __init__(self, root, sistema):
         self.ventana = root
         self.sistema = sistema
-        self.ventana.title("Tu cine de confianza | Crear cuenta")
+        self.ventana.title("Crear cuenta")
         self.ventana.geometry("500x710")
         self.ventana.minsize(450, 650)
         self.ventana.configure(bg=self.FONDO)
@@ -29,12 +29,12 @@ class VentanaRegistro:
         contenedor = tk.Frame(self.ventana, bg=self.FONDO)
         contenedor.pack(fill=tk.BOTH, expand=True, padx=38, pady=28)
 
-        tk.Label(contenedor, text="Tu cine de confianza", font=("Arial", 22, "bold"), fg=self.ROJO, bg=self.FONDO).pack()
+        tk.Label(contenedor, text="Cinemer-K", font=("Arial", 22, "bold"), fg=self.ROJO, bg=self.FONDO).pack()
         tk.Label(contenedor, text="CREÁ TU CUENTA Y VIVÍ EL CINE", font=("Arial", 9, "bold"), fg=self.TEXTO_SUAVE, bg=self.FONDO).pack(pady=(2, 18))
 
         tarjeta = tk.Frame(contenedor, bg=self.TARJETA, padx=28, pady=22)
         tarjeta.pack(fill=tk.BOTH, expand=True)
-        tk.Label(tarjeta, text="Unite a Tu cine de confianza", font=("Arial", 17, "bold"), fg=self.TEXTO, bg=self.TARJETA).pack(anchor="w")
+        tk.Label(tarjeta, text="Unite a nuestro cine", font=("Arial", 17, "bold"), fg=self.TEXTO, bg=self.TARJETA).pack(anchor="w")
         tk.Label(tarjeta, text="Completá tus datos para comenzar.", font=("Arial", 10), fg=self.TEXTO_SUAVE, bg=self.TARJETA).pack(anchor="w", pady=(4, 13))
 
         self.entry_nombre = self._crear_campo(tarjeta, "NOMBRE")

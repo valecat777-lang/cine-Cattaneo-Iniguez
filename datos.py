@@ -1,6 +1,7 @@
 # Leer y escribir los archivos JSON
 import json
 import os  # permite comprobar si un archivo existe
+import sys
 
 
 # Archivos donde se guardan los datos.
@@ -11,13 +12,36 @@ ARCHIVO_COMPRAS = "compras.json"
 
 # FUNCIONES GENERALES PARA JSON
 
+def carpeta_datos_editables():
+    """Ubicación donde la aplicación puede conservar cambios."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def ruta_lectura_json(nombre_archivo):
+    """Prioriza datos creados junto al .exe y luego los incluidos al empaquetar."""
+    ruta_editable = os.path.join(carpeta_datos_editables(), nombre_archivo)
+    if os.path.exists(ruta_editable):
+        return ruta_editable
+
+    carpeta_empaquetada = getattr(sys, "_MEIPASS", carpeta_datos_editables())
+    return os.path.join(carpeta_empaquetada, nombre_archivo)
+
+
+def ruta_escritura_json(nombre_archivo):
+    """Guarda los cambios fuera de los recursos internos de PyInstaller."""
+    return os.path.join(carpeta_datos_editables(), nombre_archivo)
+
+
 def leer_json(nombre_archivo):
+    ruta_archivo = ruta_lectura_json(nombre_archivo)
     # si el archivo no existe, devuelve una lista vacía
-    if not os.path.exists(nombre_archivo):
+    if not os.path.exists(ruta_archivo):
         return []
 
     try:
-        with open(nombre_archivo, "r", encoding="utf-8") as archivo:
+        with open(ruta_archivo, "r", encoding="utf-8") as archivo:
             datos = json.load(archivo)
 
             # verifica que el contenido sea una lista
@@ -33,7 +57,8 @@ def leer_json(nombre_archivo):
 def escribir_json(nombre_archivo, datos):
     # guarda los datos en el archivo json
     try:
-        with open(nombre_archivo, "w", encoding="utf-8") as archivo:
+        ruta_archivo = ruta_escritura_json(nombre_archivo)
+        with open(ruta_archivo, "w", encoding="utf-8") as archivo:
             json.dump(datos, archivo, ensure_ascii=False, indent=4)
 
         return True
