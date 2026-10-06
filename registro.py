@@ -43,12 +43,7 @@ class VentanaRegistro:
         self.entry_usuario = self._crear_campo(tarjeta, "USUARIO")
         self.entry_contrasenia = self._crear_campo(tarjeta, "CONTRASEÑA", ocultar=True)
 
-        tk.Label(tarjeta, text="TIPO DE CUENTA", font=("Arial", 9, "bold"), fg=self.TEXTO_SUAVE, bg=self.TARJETA).pack(anchor="w", pady=(12, 4))
-        self.tipo_var = tk.StringVar(value="cliente")
-        opciones = tk.Frame(tarjeta, bg=self.TARJETA)
-        opciones.pack(anchor="w")
-        for texto, valor in (("Cliente", "cliente"), ("Administrador", "administrador")):
-            tk.Radiobutton(opciones, text=texto, variable=self.tipo_var, value=valor, bg=self.TARJETA, activebackground=self.TARJETA, fg=self.TEXTO, activeforeground=self.TEXTO, selectcolor=self.CAMPO, font=("Arial", 10)).pack(side=tk.LEFT, padx=(0, 16))
+        
 
         tk.Button(tarjeta, text="CREAR CUENTA", command=self.registrar, bg=self.ROJO, activebackground=self.ROJO_ACTIVO, fg="white", activeforeground="white", font=("Arial", 10, "bold"), relief="flat", cursor="hand2", pady=10).pack(fill=tk.X, pady=(19, 0))
 
@@ -65,14 +60,15 @@ class VentanaRegistro:
         usuario = self.entry_usuario.get()
         contrasenia = self.entry_contrasenia.get()
 
-        if self.tipo_var.get() == "administrador":
-            nuevo_usuario = Administrador(usuario, contrasenia, nombre, apellido, dni)
-        else:
-            nuevo_usuario = Cliente(usuario, contrasenia, nombre, apellido, dni)
+        #Todos los registros nuevos corresponden a clientes.
+        nuevo_usuario = Cliente(usuario, contrasenia, nombre, apellido, dni)
 
+        #Pedirle al sistema que lo valide y guarde en el JSON (funciona igual para ambos)
         exito, mensaje = self.sistema.registrar_usuario(nuevo_usuario)
+
+        #Mostrar el resultado en pantalla
         if exito:
-            messagebox.showinfo("Tu cine de confianza", mensaje)
-            self.ventana.destroy()
+            messagebox.showinfo("Registro exitoso", mensaje)
+            self.ventana.destroy()  # Cierra la ventana de registro tras el éxito
         else:
-            messagebox.showerror("Error de registro", mensaje)
+            messagebox.showerror("Error de Registro", mensaje)
