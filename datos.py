@@ -1,8 +1,7 @@
-#leer/escribir los json + contraseñas (hay que averiguar si conviene hashearlas y como se hace tal cosaaaa :p)
+# Leer y escribir los archivos JSON
 import json
 import os  # permite comprobar si un archivo existe
 
-#from sistema import Administrador, Cliente, Entrada, Funcion
 
 # Archivos donde se guardan los datos.
 ARCHIVO_USUARIOS = "usuarios.json"
@@ -13,7 +12,7 @@ ARCHIVO_COMPRAS = "compras.json"
 # FUNCIONES GENERALES PARA JSON
 
 def leer_json(nombre_archivo):
-    # si el archivo no existe, devuelve una lista vacía.
+    # si el archivo no existe, devuelve una lista vacía
     if not os.path.exists(nombre_archivo):
         return []
 
@@ -21,16 +20,18 @@ def leer_json(nombre_archivo):
         with open(nombre_archivo, "r", encoding="utf-8") as archivo:
             datos = json.load(archivo)
 
-            # verif que el contenido sea una lista:
+            # verifica que el contenido sea una lista
             if isinstance(datos, list):
                 return datos
             return []
 
-    except (json.JSONDecodeError, OSError):   # si hay un error al leer el archivo, devuelve una lista vacía
+    except (json.JSONDecodeError, OSError):
+        # si hay un error al leer el archivo, devuelve una lista vacía
         return []
 
 
-def escribir_json(nombre_archivo, datos): # Guarda los datos en el archivo json
+def escribir_json(nombre_archivo, datos):
+    # guarda los datos en el archivo json
     try:
         with open(nombre_archivo, "w", encoding="utf-8") as archivo:
             json.dump(datos, archivo, ensure_ascii=False, indent=4)
@@ -41,10 +42,12 @@ def escribir_json(nombre_archivo, datos): # Guarda los datos en el archivo json
         return False
 
 
-# USUARIOS:
+# USUARIOS
 
-def cargar_usuarios():  # funcion que carga los usuarios guardados en usuarios.json
-    from sistema import Administrador, Cliente          # Importación local
+def cargar_usuarios():
+    # carga los usuarios guardados en usuarios.json
+    from sistema import Administrador, Cliente
+
     datos = leer_json(ARCHIVO_USUARIOS)
     usuarios = []
 
@@ -72,23 +75,29 @@ def cargar_usuarios():  # funcion que carga los usuarios guardados en usuarios.j
 
             usuarios.append(usuario)
 
-        except (KeyError, TypeError): # si faltan datos de un usuario, se ignora ese registro
+        except (KeyError, TypeError):
+            # si faltan datos de un usuario, se ignora ese registro
             continue
+
     return usuarios
 
 
-def guardar_usuarios(usuarios): # convierte los usuarios a diccionarios y los guarda en json
+def guardar_usuarios(usuarios):
+    # convierte los usuarios a diccionarios y los guarda en JSON
     datos = []
 
     for usuario in usuarios:
         datos.append(usuario.to_dict())
+
     return escribir_json(ARCHIVO_USUARIOS, datos)
 
 
-# MOVIES DEL CINE:
+# PELICULAS DEL CINE
 
-def cargar_funciones():            # Carga las funciones guardadas en funciones.json
-    from sistema import Funcion     # Importación local
+def cargar_funciones():
+    # carga las funciones guardadas en funciones.json
+    from sistema import Funcion
+
     datos = leer_json(ARCHIVO_FUNCIONES)
     funciones = []
 
@@ -103,32 +112,36 @@ def cargar_funciones():            # Carga las funciones guardadas en funciones.
                 int(datos_funcion["capacidad"])
                 # Se obtiene la ruta de la imagen si existe, sino se asigna una cadena vacía
             )
+
             funciones.append(funcion)
 
         except (KeyError, TypeError, ValueError):
-            # Si faltan datos o hay valores incorrectos,
-            # se ignora esa función.
+            # si faltan datos o hay valores incorrectos, se ignora esa función
             continue
+
     return funciones
 
 
-def guardar_funciones(funciones):     # Convierte las funciones a diccionarios y las guarda en json
+def guardar_funciones(funciones):
+    # convierte las funciones a diccionarios y las guarda en JSON
     datos = []
 
     for funcion in funciones:
         datos.append(funcion.to_dict())
+
     return escribir_json(ARCHIVO_FUNCIONES, datos)
 
 
-# COMPRAS / ENTRADAS:
+# COMPRAS / ENTRADAS
 
 def cargar_entradas(usuarios):
-    # Carga las entradas guardadas en compras.json:
-    from sistema import Entrada          # Importación local
+    # carga las entradas guardadas en compras.json
+    from sistema import Entrada
+
     datos = leer_json(ARCHIVO_COMPRAS)
     entradas = []
 
-    # Permite encontrar un usuario rápidamente por su nombre:
+    # permite encontrar un usuario rápidamente por su nombre
     usuarios_por_nombre = {}
 
     for usuario in usuarios:
@@ -138,14 +151,14 @@ def cargar_entradas(usuarios):
         try:
             nombre_cliente = datos_entrada["cliente"].lower()
 
-            # Busca al cliente correspondiente:
+            # Busca al cliente correspondiente.
             cliente = usuarios_por_nombre.get(nombre_cliente)
 
-            # Si el cliente no existe, no se carga la entrada:
+            # si el cliente no existe, no se carga la entrada
             if cliente is None:
                 continue
 
-            # Crea una entrada con los datos guardados:
+            # crea una entrada con los datos guardados
             entrada = Entrada.__new__(Entrada)
 
             entrada.id_entrada = int(datos_entrada["id"])
@@ -159,19 +172,17 @@ def cargar_entradas(usuarios):
             entradas.append(entrada)
 
         except (KeyError, TypeError, ValueError):
-            # Si faltan datos o hay valores incorrectos: se ignora esa entrada
+            # Si faltan datos o hay valores incorrectos se ignora esa entrada.
             continue
-
+        
     return entradas
 
 
 def guardar_entradas(entradas):
-    # Convierte las entradas a diccionarios y las guarda en json
+    # convierte las entradas a diccionarios y las guarda en JSON
     datos = []
 
     for entrada in entradas:
         datos.append(entrada.to_dict())
 
     return escribir_json(ARCHIVO_COMPRAS, datos)
-
-
