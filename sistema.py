@@ -60,13 +60,14 @@ class Cliente(Usuario):
 
 
 class Funcion:
-    def __init__(self, pelicula, sala, fecha, hora, precio, capacidad):
+    def __init__(self, pelicula, sala, fecha, hora, precio, capacidad, imagen = "Fotos/HPCDF.png"):
         self.pelicula = pelicula
         self.sala = sala
         self.fecha = fecha
         self.hora = hora
         self.precio = precio
         self.capacidad = capacidad
+        self.imagen = imagen
 
     def hay_lugares(self):  # Devuelve True si todavía quedan lugares disponibles.
         return self.capacidad > 0
@@ -85,6 +86,7 @@ class Funcion:
             "hora": self.hora,
             "precio": self.precio,
             "capacidad": self.capacidad,
+            "imagen": self.imagen
         }
 
 
@@ -100,6 +102,7 @@ class Entrada:
         self.fecha = funcion.fecha
         self.hora = funcion.hora
         self.precio = funcion.precio
+        self.cantidad = funcion.cantidad
 
     def to_dict(self):  # convierte la entrada en diccionario para guardarla en json
         return {
@@ -110,6 +113,7 @@ class Entrada:
             "fecha": self.fecha,
             "hora": self.hora,
             "precio": self.precio,
+            "cantidad": self.cantidad
         }
 
 

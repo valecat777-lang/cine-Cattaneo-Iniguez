@@ -109,8 +109,8 @@ def cargar_funciones():
                 datos_funcion["fecha"],
                 datos_funcion["hora"],
                 float(datos_funcion["precio"]),
-                int(datos_funcion["capacidad"]),
-                datos_funcion.get("imagen", "Fotos/HPCDF.png")
+                int(datos_funcion["capacidad"])
+                # Se obtiene la ruta de la imagen si existe, sino se asigna una cadena vacía
             )
 
             funciones.append(funcion)
