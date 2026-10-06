@@ -7,11 +7,143 @@ from login import VentanaLogin
 from sistema import Administrador, Cliente, Funcion, Sistema
 
 
+class DialogoCantidad(tk.Toplevel):
+    FONDO = "#10121b"
+    TARJETA = "#1b1f2d"
+    CAMPO = "#292e3f"
+    TEXTO = "#f7f7fb"
+    TEXTO_SUAVE = "#aeb6ca"
+    ROJO = "#e5394f"
+    ROJO_ACTIVO = "#c92d41"
+
+    def __init__(self, parent, funcion):
+        super().__init__(parent)
+        self.funcion = funcion
+        self.cantidad = None
+
+        self.title("Tu cine de confianza | Comprar entradas")
+        self.geometry("430x330")
+        self.resizable(False, False)
+        self.configure(bg=self.FONDO)
+        self.transient(parent)
+        self.grab_set()
+
+        contenedor = tk.Frame(self, bg=self.FONDO)
+        contenedor.pack(fill=tk.BOTH, expand=True, padx=30, pady=26)
+
+        tk.Label(
+            contenedor,
+            text="Tu cine de confianza",
+            font=("Arial", 20, "bold"),
+            fg=self.ROJO,
+            bg=self.FONDO,
+        ).pack()
+        tk.Label(
+            contenedor,
+            text="COMPRÁ TUS ENTRADAS",
+            font=("Arial", 9, "bold"),
+            fg=self.TEXTO_SUAVE,
+            bg=self.FONDO,
+        ).pack(pady=(2, 14))
+
+        tarjeta = tk.Frame(contenedor, bg=self.TARJETA, padx=22, pady=18)
+        tarjeta.pack(fill=tk.BOTH, expand=True)
+        tk.Label(
+            tarjeta,
+            text=funcion.pelicula,
+            font=("Arial", 14, "bold"),
+            fg=self.TEXTO,
+            bg=self.TARJETA,
+            wraplength=320,
+        ).pack(anchor="w")
+        tk.Label(
+            tarjeta,
+            text=f"Disponibles: {funcion.capacidad}",
+            font=("Arial", 10),
+            fg=self.TEXTO_SUAVE,
+            bg=self.TARJETA,
+        ).pack(anchor="w", pady=(3, 14))
+        tk.Label(
+            tarjeta,
+            text="CANTIDAD DE ENTRADAS",
+            font=("Arial", 9, "bold"),
+            fg=self.TEXTO_SUAVE,
+            bg=self.TARJETA,
+        ).pack(anchor="w", pady=(0, 5))
+
+        self.entry_cantidad = tk.Entry(
+            tarjeta,
+            bg=self.CAMPO,
+            fg=self.TEXTO,
+            insertbackground=self.TEXTO,
+            relief="flat",
+            justify="center",
+            font=("Arial", 13, "bold"),
+        )
+        self.entry_cantidad.insert(0, "1")
+        self.entry_cantidad.pack(fill=tk.X, ipady=7)
+
+        botones = tk.Frame(tarjeta, bg=self.TARJETA)
+        botones.pack(fill=tk.X, pady=(16, 0))
+        tk.Button(
+            botones,
+            text="CANCELAR",
+            command=self.destroy,
+            bg=self.CAMPO,
+            activebackground="#363d51",
+            fg=self.TEXTO,
+            activeforeground=self.TEXTO,
+            font=("Arial", 9, "bold"),
+            relief="flat",
+            pady=9,
+        ).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
+        tk.Button(
+            botones,
+            text="CONFIRMAR COMPRA",
+            command=self.confirmar,
+            bg=self.ROJO,
+            activebackground=self.ROJO_ACTIVO,
+            fg="white",
+            activeforeground="white",
+            font=("Arial", 9, "bold"),
+            relief="flat",
+            pady=9,
+        ).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+
+        self.entry_cantidad.focus_set()
+        self.bind("<Return>", lambda evento: self.confirmar())
+        self.bind("<Escape>", lambda evento: self.destroy())
+
+    def confirmar(self):
+        try:
+            cantidad = int(self.entry_cantidad.get())
+        except ValueError:
+            messagebox.showerror(
+                "Cantidad inválida",
+                "Ingresá un número entero.",
+                parent=self,
+            )
+            return
+
+        if not 1 <= cantidad <= self.funcion.capacidad:
+            messagebox.showerror(
+                "Cantidad inválida",
+                f"Elegí una cantidad entre 1 y {self.funcion.capacidad}.",
+                parent=self,
+            )
+            return
+
+        self.cantidad = cantidad
+        self.destroy()
+
+
 class TarjetaPelicula(tk.Frame):
  
+    ANCHO_TARJETA = 240
+    ALTO_TARJETA = 470
     ANCHO_POSTER = 210
     ALTO_POSTER = 300
-    TAMANIO_TITULO = 16
+    TAMANIO_TITULO = 14
     TAMANIO_DETALLE = 11
     TAMANIO_BOTON = 11
     ANCHO_TEXTO_TITULO = 220
@@ -20,12 +152,16 @@ class TarjetaPelicula(tk.Frame):
     def __init__(self, parent, funcion, indice, callback_comprar, es_cliente):
         super().__init__(
             parent,
+            width=self.ANCHO_TARJETA,
+            height=self.ALTO_TARJETA,
             bg="#1e1e2e",
             bd=1,
             relief="solid",
             padx=self.ESPACIADO_INTERNO,
             pady=self.ESPACIADO_INTERNO,
         )
+        # Mantiene todas las tarjetas del mismo tamaño, aunque cambie el título.
+        self.grid_propagate(False)
         self.funcion = funcion
         self.indice = indice
         self.callback_comprar = callback_comprar
@@ -45,6 +181,8 @@ class TarjetaPelicula(tk.Frame):
             fg="#ffffff",
             bg="#1e1e2e",
             wraplength=self.ANCHO_TEXTO_TITULO,
+            height=2,
+            justify="center",
         )
         lbl_titulo.pack()
 
@@ -199,11 +337,31 @@ class VentanaPrincipalCine:
             tarjeta.grid(row=fila, column=columna, padx=12, pady=12)
 
     def realizar_compra(self, indice_funcion):
-        exito, entrada, mensaje = self.sistema.comprar_entrada(indice_funcion)
+        funcion = self.sistema.funciones[indice_funcion]
+        if funcion.capacidad <= 0:
+            messagebox.showerror(
+                "Sin entradas disponibles",
+                "No hay entradas disponibles para esta función.",
+            )
+            return
+
+        dialogo = DialogoCantidad(self.root, funcion)
+        self.root.wait_window(dialogo)
+        cantidad = dialogo.cantidad
+
+        if cantidad is None:
+            return
+
+        exito, entrada, mensaje = self.sistema.comprar_entrada(
+            indice_funcion, cantidad
+        )
         if exito:
             messagebox.showinfo(
                 "¡Entrada Comprada!",
-                f"{mensaje}\n\nPelícula: {entrada.pelicula}\nTicket ID: {entrada.id_entrada}",
+                f"{mensaje}\n\nPelícula: {entrada.pelicula}\n"
+                f"Cantidad: {entrada.cantidad}\n"
+                f"Total: ${entrada.precio * entrada.cantidad}\n"
+                f"Ticket ID: {entrada.id_entrada}",
             )
             self.renderizar_posters()
         else:

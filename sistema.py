@@ -94,7 +94,7 @@ class Funcion:
 
 
 class Entrada:
-    def __init__(self, id_entrada, cliente, funcion):
+    def __init__(self, id_entrada, cliente, funcion, cantidad=1):
         self.id_entrada = id_entrada
         self.cliente = cliente
         self.pelicula = funcion.pelicula
@@ -102,7 +102,7 @@ class Entrada:
         self.fecha = funcion.fecha
         self.hora = funcion.hora
         self.precio = funcion.precio
-        self.cantidad = funcion.cantidad
+        self.cantidad = cantidad
 
     def to_dict(self):  # convierte la entrada en diccionario para guardarla en json
         return {
@@ -250,7 +250,7 @@ class Sistema:
         # Verifica que el usuario actual sea un administrador antes de permitir agregar una función.
         if not isinstance(self.usuario_actual, Administrador):
            return False, "Solo los administradores pueden agregar funciones."
-        valido, mensaje = self._validar_datos_funcion(
+        valido, mensaje = self.validar_datos_funcion(
             funcion.pelicula,
             funcion.sala,
             funcion.fecha,
@@ -330,8 +330,8 @@ class Sistema:
         return max(entrada.id_entrada for entrada in self.entradas) + 1
 
     def comprar_entrada(
-        self, indice_funcion
-    ):  # realiza la compra de una entrada para la función indicada
+        self, indice_funcion, cantidad=1
+    ):  # realiza la compra de entradas para la función indicada
         if self.usuario_actual is None:  # solo los clientes logueados pueden comprar
             return False, None, "Debe iniciar sesión para comprar entradas."
 
@@ -343,23 +343,33 @@ class Sistema:
         if not (0 <= indice_funcion < len(self.funciones)):
             return False, None, "La función seleccionada no existe."
 
+        try:
+            cantidad = int(cantidad)
+        except (TypeError, ValueError):
+            return False, None, "La cantidad de entradas debe ser un número entero."
+
+        if cantidad <= 0:
+            return False, None, "Debe comprar al menos una entrada."
+
         funcion = self.funciones[indice_funcion]
 
-        if not funcion.vender_entrada():  # este valida que haya lugar, si la capacidad es 0 entonces la funcion esta agotada por lo tannnnto no hay venta,
+        if cantidad > funcion.capacidad:
             return (
                 False,
                 None,
-                "No hay entradas disponibles para la función seleccionada.",
-            )  # si la capaxidad es mayor que 0 se descuenta 1 lugar
+                f"Solo quedan {funcion.capacidad} entradas disponibles para esta función.",
+            )
+
+        funcion.capacidad -= cantidad
 
         id_entrada = self.generar_id_entrada()          # genera automáticamente el id de la entrada
 
-        entrada = Entrada(id_entrada, self.usuario_actual, funcion)
+        entrada = Entrada(id_entrada, self.usuario_actual, funcion, cantidad)
 
         self.entradas.append(entrada)
         self.guardar_datos()
 
-        return True, entrada, "Entrada comprada exitosamente."
+        return True, entrada, "Compra realizada exitosamente."
     
     def entradas_del_usuario_actual(
         self,

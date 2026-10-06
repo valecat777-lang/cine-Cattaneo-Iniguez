@@ -104,14 +104,15 @@ def cargar_funciones():
     for datos_funcion in datos:
         try:
             funcion = Funcion(
-                datos_funcion["pelicula"],
-                datos_funcion["sala"],
-                datos_funcion["fecha"],
-                datos_funcion["hora"],
-                float(datos_funcion["precio"]),
-                int(datos_funcion["capacidad"])
-                # Se obtiene la ruta de la imagen si existe, sino se asigna una cadena vacía
-            )
+        datos_funcion["pelicula"],
+        datos_funcion["sala"],
+        datos_funcion["fecha"],
+        datos_funcion["hora"],
+        float(datos_funcion["precio"]),
+        int(datos_funcion["capacidad"]),
+        datos_funcion.get("imagen", "Fotos/HPCDF.png"),
+    )
+
 
             funciones.append(funcion)
 
@@ -168,6 +169,8 @@ def cargar_entradas(usuarios):
             entrada.fecha = datos_entrada["fecha"]
             entrada.hora = datos_entrada["hora"]
             entrada.precio = float(datos_entrada["precio"])
+            # Las compras anteriores a la opción de cantidad representan una entrada.
+            entrada.cantidad = int(datos_entrada.get("cantidad", 1))
 
             entradas.append(entrada)
 
