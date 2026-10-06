@@ -495,11 +495,3 @@ class VentanaLoginWrapper(VentanaLogin):
         else:
             messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
 
-
-if __name__ == "__main__":
-    sistema_cine = Sistema()
-    sistema_cine.cargar_datos()
-
-    root = tk.Tk()
-    app = VentanaLoginWrapper(root, sistema_cine)
-    root.mainloop()
